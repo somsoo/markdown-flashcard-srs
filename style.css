@@ -280,11 +280,13 @@ body {
 
 .editor-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
 .action-btn {
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 120px;
   padding: 8px 12px;
   font-size: 0.85rem;
   font-weight: 700;
@@ -293,11 +295,22 @@ body {
   border: none;
   border-radius: 8px;
   cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.action-btn:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
 }
 
 .action-btn.secondary {
   background: #64748b;
 }
+
+.action-btn.share {
+  background: #0ea5e9;
+}
+
 
 /* Stats View */
 .stats-card {

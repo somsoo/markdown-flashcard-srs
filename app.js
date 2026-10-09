@@ -134,7 +134,12 @@ class FlashcardStudio {
     this.statMastered = document.getElementById('statMastered');
 
     this.initEvents();
-    this.loadDeck(this.currentDeckKey);
+    this.ensurePersistedStorage();
+    this.checkUrlHash().then(loaded => {
+      if (!loaded) {
+        this.loadDeck(this.currentDeckKey);
+      }
+    });
   }
 
   initEvents() {
@@ -190,6 +195,27 @@ class FlashcardStudio {
       this.markdownInput.value = DEFAULT_DECKS.korean_history.join('\n');
     });
 
+    // 🔗 URL 해시 압축 무서버 공유
+    document.getElementById('shareDeckBtn').addEventListener('click', async () => {
+      await this.shareDeckUrl();
+    });
+
+    // 💾 JSON 백업 다운로드
+    document.getElementById('exportDeckBtn').addEventListener('click', () => {
+      this.exportDeckJson();
+    });
+
+    // 📂 파일 불러오기 트리거
+    const fileInput = document.getElementById('fileImportInput');
+    document.getElementById('importDeckBtn').addEventListener('click', () => {
+      fileInput.click();
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        this.importDeckFile(e.target.files[0]);
+      }
+    });
+
     // Keyboard Shortcuts
     window.addEventListener('keydown', (e) => {
       if (document.activeElement.tagName === 'TEXTAREA' || document.activeElement.tagName === 'INPUT') return;
@@ -200,6 +226,11 @@ class FlashcardStudio {
         const grade = parseInt(e.code.replace('Digit', ''));
         this.handleGrade(grade);
       }
+    });
+
+    // URL 해시 변경 감지
+    window.addEventListener('hashchange', () => {
+      this.checkUrlHash();
     });
   }
 
@@ -314,6 +345,157 @@ class FlashcardStudio {
     this.statReviewedToday.textContent = this.reviewedTodayCount;
     const masteredCount = this.cards.filter(c => c.mastered).length;
     this.statMastered.textContent = masteredCount;
+  }
+
+  async ensurePersistedStorage() {
+    if (navigator.storage && navigator.storage.persist) {
+      const isPersisted = await navigator.storage.persisted();
+      if (!isPersisted) {
+        await navigator.storage.persist();
+      }
+    }
+  }
+
+  // 🔗 무서버 URL 상태 공유 (CompressionStream & Base64URL)
+  async shareDeckUrl() {
+    const rawText = this.markdownInput.value.trim();
+    if (!rawText) {
+      alert("공유할 마크다운 카드 내용이 없습니다. 먼저 편집기에 내용을 입력해주세요.");
+      return;
+    }
+
+    try {
+      const stateObj = {
+        title: "공유된 플래시카드 덱",
+        text: rawText,
+        createdAt: new Date().toISOString()
+      };
+
+      const jsonStr = JSON.stringify(stateObj);
+      const stream = new Blob([jsonStr]).stream();
+      const compressedStream = stream.pipeThrough(new CompressionStream('deflate'));
+      const response = await new Response(compressedStream);
+      const buffer = await response.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary)
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=+$/, '');
+
+      const shareUrl = `${window.location.origin}${window.location.pathname}#data=${base64}`;
+      await navigator.clipboard.writeText(shareUrl);
+      window.location.hash = `data=${base64}`;
+      alert("🎉 덱 공유 링크가 클립보드에 복사되었습니다!\n\n서버 없이 URL 링크 하나로 누구나 동일한 카드 덱을 바로 학습할 수 있습니다:\n" + shareUrl);
+    } catch (err) {
+      console.error(err);
+      alert("공유 링크 생성 중 오류가 발생했습니다: " + err.message);
+    }
+  }
+
+  // URL 해시 확인 및 복원
+  async checkUrlHash() {
+    const hash = window.location.hash;
+    if (!hash.startsWith('#data=')) return false;
+
+    try {
+      const base64 = hash.replace('#data=', '')
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      const stream = new Blob([bytes]).stream();
+      const decompressedStream = stream.pipeThrough(new DecompressionStream('deflate'));
+      const response = await new Response(decompressedStream);
+      const jsonStr = await response.text();
+      const stateObj = JSON.parse(jsonStr);
+
+      if (stateObj && stateObj.text) {
+        this.markdownInput.value = stateObj.text;
+        this.parseCustomMarkdown(stateObj.text);
+        this.deckSelect.value = 'custom';
+        this.currentDeckKey = 'custom';
+        document.querySelector('.nav-tab[data-tab="study"]').click();
+        return true;
+      }
+    } catch (err) {
+      console.error("URL 해시 복원 실패:", err);
+    }
+    return false;
+  }
+
+  // 💾 JSON 표준 백업 다운로드
+  exportDeckJson() {
+    const rawText = this.markdownInput.value.trim();
+    const backupData = {
+      schemaVersion: "1.0.0",
+      appIdentifier: "markdown-flashcard-srs",
+      exportedAt: new Date().toISOString(),
+      payload: {
+        currentDeckKey: this.currentDeckKey,
+        markdownText: rawText,
+        cards: this.cards.map(c => ({
+          raw: c.raw,
+          interval: c.interval,
+          repetitions: c.repetitions,
+          mastered: c.mastered
+        })),
+        reviewedTodayCount: this.reviewedTodayCount
+      }
+    };
+
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const dateStr = new Date().toISOString().slice(0, 10);
+    a.href = url;
+    a.download = `flashcards_backup_${dateStr}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // 📂 JSON / MD 파일 가져오기
+  importDeckFile(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const content = e.target.result;
+      try {
+        if (file.name.endsWith('.json')) {
+          const parsed = JSON.parse(content);
+          if (parsed.payload && parsed.payload.markdownText) {
+            this.markdownInput.value = parsed.payload.markdownText;
+            this.parseCustomMarkdown(parsed.payload.markdownText);
+          } else if (Array.isArray(parsed)) {
+            const lines = parsed.map(item => typeof item === 'string' ? item : item.raw || '').filter(Boolean);
+            this.markdownInput.value = lines.join('\n');
+            this.parseCustomMarkdown(this.markdownInput.value);
+          } else {
+            alert('지원되지 않는 JSON 백업 형식입니다.');
+            return;
+          }
+        } else {
+          // .md 또는 .txt 파일
+          this.markdownInput.value = content;
+          this.parseCustomMarkdown(content);
+        }
+
+        this.deckSelect.value = 'custom';
+        this.currentDeckKey = 'custom';
+        document.querySelector('.nav-tab[data-tab="study"]').click();
+        alert(`📂 '${file.name}' 파일의 카드를 성공적으로 불러왔습니다! (${this.cards.length}장)`);
+      } catch (err) {
+        alert('파일을 읽는 중 오류가 발생했습니다: ' + err.message);
+      }
+    };
+    reader.readAsText(file);
   }
 }
 
