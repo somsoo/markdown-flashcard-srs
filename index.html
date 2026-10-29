@@ -1,161 +1,27 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>마크다운 플래시카드 SRS - 3D 빈칸 암기 스튜디오</title>
-  <meta name="description" content="마크다운 요약 노트를 붙여넣으면 ==빈칸 가림== 3D 플래시카드로 즉시 변환되어 간격 반복(SRS) 알고리즘으로 암기 효율을 극대화하는 수험생 학습 도구입니다.">
-  <meta name="site-status" content="published">
-  <link rel="canonical" href="https://markdown-flashcard-srs.enjoy-onepage.com/">
-  <link rel="manifest" href="manifest.json">
-  <link rel="stylesheet" href="style.css">
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1644781424103135" crossorigin="anonymous"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>페이지가 옮겨졌습니다</title>
+<meta name="robots" content="noindex, follow">
+<link rel="canonical" href="https://flashcard.enjoy-onepage.com/">
+<meta http-equiv="refresh" content="0; url=https://flashcard.enjoy-onepage.com/">
+<script>location.replace("https://flashcard.enjoy-onepage.com/");</script>
+<style>
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;background:#0f172a;color:#e2e8f0;font-family:system-ui,-apple-system,"Apple SD Gothic Neo","Malgun Gothic","Segoe UI",Roboto,sans-serif;word-break:keep-all}
+main{max-width:34rem;text-align:center}
+h1{font-size:1.5rem;margin:0 0 .75rem}
+p{margin:0 0 1rem;line-height:1.6;color:#cbd5e1}
+a{color:#6ee7b7;font-weight:700}
+</style>
 </head>
 <body>
-  <aside class="ad-top-wrapper" aria-label="광고 영역">
-    <div class="ad-top-box">
-      <ins class="adsbygoogle"
-           style="display:block; max-height:90px;"
-           data-ad-client="ca-pub-1644781424103135"
-           data-ad-slot="3824727725"
-           data-ad-format="horizontal"
-           data-full-width-responsive="false"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
-  </aside>
-
-  <header class="app-header">
-    <h1 class="app-title">마크다운 플래시카드 SRS</h1>
-    <p class="app-desc">마크다운 노트를 붙여넣으면 3D 빈칸 카드로 즉시 변환되어 장기기억화합니다.</p>
-  </header>
-
-  <main class="main-container">
-    <div class="top-nav-tabs">
-      <button class="nav-tab active" data-tab="study">암기 모드</button>
-      <button class="nav-tab" data-tab="editor">노트 편집기</button>
-      <button class="nav-tab" data-tab="stats">학습 통계</button>
-    </div>
-
-    <!-- 1. Study View -->
-    <section class="tab-pane active" id="paneStudy">
-      <div class="deck-selector-bar">
-        <label for="deckSelect">카드 덱:</label>
-        <select id="deckSelect">
-          <option value="korean_history">한국사 핵심 필수 20</option>
-          <option value="social_studies">사회·경제 필수 20</option>
-          <option value="science_bio">통합·생명과학 필수 20</option>
-          <option value="world_history">세계사 핵심 필수 20</option>
-          <option value="english_proverbs">영미 명문 속담 20</option>
-          <option value="custom">내 마크다운 노트</option>
-        </select>
-        <span class="card-counter" id="cardCounter">1 / 5</span>
-      </div>
-
-      <div class="card-stage">
-        <div class="flip-card" id="flipCard">
-          <div class="flip-card-inner" id="flipCardInner">
-            <div class="flip-card-front">
-              <span class="card-badge">질문 (앞면)</span>
-              <div class="card-content" id="cardFrontText">카드를 불러오는 중...</div>
-              <span class="flip-hint">카드를 누르거나 [Space]로 정답 확인</span>
-            </div>
-            <div class="flip-card-back">
-              <span class="card-badge back">정답 (뒷면)</span>
-              <div class="card-content" id="cardBackText">정답 내용</div>
-              <span class="flip-hint">하단 버튼이나 [1~4] 키로 난이도 평가</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="srs-controls" id="srsControls">
-        <button class="srs-btn again" data-grade="1" title="단축키 1">다시 (10분)</button>
-        <button class="srs-btn hard" data-grade="2" title="단축키 2">어려움 (1일)</button>
-        <button class="srs-btn good" data-grade="3" title="단축키 3">알맞음 (3일)</button>
-        <button class="srs-btn easy" data-grade="4" title="단축키 4">쉬움 (7일)</button>
-      </div>
-    </section>
-
-    <!-- 2. Editor View -->
-    <section class="tab-pane" id="paneEditor">
-      <div class="editor-guide">
-        <p><strong>작성 팁:</strong> 가리고 싶은 단어를 <code>==단어==</code> 또는 <code>{{c1::단어}}</code>로 감싸세요. 한 줄당 카드 한 장이 생성됩니다.</p>
-      </div>
-      <textarea id="markdownInput" class="md-textarea" rows="8" placeholder="예시:&#10;1894년 ==동학 농민 운동== 당시 농민군은 전주 화약을 맺고 자치 기구인 ==집강소==를 설치하였다.&#10;조선 태종은 ==호패법==을 실시하여 군정과 조세를 안정시켰다."></textarea>
-      <div class="editor-actions">
-        <button class="action-btn" id="applyMdBtn">카드 덱으로 변환하기</button>
-        <button class="action-btn secondary" id="resetSampleBtn">예시 노트 불러오기</button>
-        <button class="action-btn share" id="shareDeckBtn" title="URL 링크 하나로 이 덱 공유">🔗 URL로 덱 공유</button>
-        <button class="action-btn secondary" id="exportDeckBtn" title="JSON 파일로 백업 다운로드">💾 JSON 백업</button>
-        <button class="action-btn secondary" id="importDeckBtn" title="JSON 또는 MD 파일 불러오기">📂 파일 가져오기</button>
-        <input type="file" id="fileImportInput" accept=".json,.md,.txt" style="display:none;">
-      </div>
-    </section>
-
-    <!-- 3. Stats View -->
-    <section class="tab-pane" id="paneStats">
-      <div class="stats-card">
-        <h3>학습 성취도 요약</h3>
-        <div class="stats-grid">
-          <div class="stat-box">
-            <span class="stat-num" id="statTotalCards">0</span>
-            <span class="stat-lbl">총 카드 수</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num" id="statReviewedToday">0</span>
-            <span class="stat-lbl">오늘 복습한 카드</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num" id="statMastered">0</span>
-            <span class="stat-lbl">장기 기억화 (쉬움)</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <div class="ad-mid-wrapper">
-      <ins class="adsbygoogle"
-           style="display:block; text-align:center;"
-           data-ad-layout="in-article"
-           data-ad-format="fluid"
-           data-ad-client="ca-pub-1644781424103135"
-           data-ad-slot="1186914926"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
-
-    <section class="edu-guide">
-      <h2>에빙하우스 망각곡선과 능동적 회상(Active Recall)</h2>
-      <p>단순히 노트를 눈으로 반복해 읽는 '수동적 재인(Passive Recognition)'은 시험장에서 기억을 인출하는 데 한계가 있습니다. 마크다운 빈칸 가림 카드는 뇌가 능동적으로 가려진 정답을 복원하도록 자극하며, 간격 반복(Spaced Repetition System) 알고리즘을 통해 망각 직전의 최적 타이밍에 다시 노출시켜 최소한의 시간으로 영구 기억을 형성합니다.</p>
-      <div class="guide-cards">
-        <div class="guide-card">
-          <h3>1. 3D 카드 플립과 인지 부하 감소</h3>
-          <p>질문과 정답을 완전히 분리하여 스스로 답을 떠올릴 때까지 정답 노출을 차단하며, 플립 애니메이션이 시각적 몰입감을 더합니다.</p>
-        </div>
-        <div class="guide-card">
-          <h3>2. 간격 반복(SRS) 복습 스케줄러</h3>
-          <p>평가 난이도(다시/어려움/알맞음/쉬움)에 따라 복습 주기가 지수적으로 늘어나 자주 잊어버리는 취약 개념에 집중할 수 있습니다.</p>
-        </div>
-      </div>
-    </section>
-
-    <div class="ad-bottom-wrapper">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-format="autorelaxed"
-           data-ad-client="ca-pub-1644781424103135"
-           data-ad-slot="3416334507"></ins>
-      <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-    </div>
-  </main>
-
-  <footer class="app-footer">
-    <div class="footer-links">
-      <a href="about.html">서비스 소개</a> | 
-      <a href="privacy.html">개인정보처리방침</a>
-    </div>
-    <p>&copy; 2026 Enjoy Onepage. All rights reserved.</p>
-  </footer>
-
-  <script src="app.js"></script>
+<main>
+<h1>페이지가 옮겨졌습니다</h1>
+<p>마크다운 플래시카드 SRS - 3D 빈칸 암기 스튜디오 사이트는 운영을 마쳤습니다. 대신 쓸 수 있는 도구: 망각곡선 플래시카드 암기장</p>
+<p>잠시 후 자동으로 이동합니다.</p>
+<p><a href="https://flashcard.enjoy-onepage.com/">망각곡선 플래시카드 암기장 바로 가기</a></p>
+</main>
 </body>
 </html>
